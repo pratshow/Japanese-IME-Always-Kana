@@ -16,13 +16,14 @@ SetDefaultKeyboard(LocaleID){
 	Loop % windows {
 		PostMessage 0x50, 0, % Lan, , % "ahk_id " windows%A_Index%
 	}
+	initialCapsLockState := GetKeyState("Capslock", "T") ; Getting caps lock state to reset it back. ; Added
 	
-	SwapToKana()
+	SwapToKana(initialCapsLockState)
 }
 
 ; Swaps to kana automatically
-SwapToKana(){
-	initialCapsLockState := GetKeyState("Capslock", "T") ; Getting caps lock state to reset it back. 
+SwapToKana(initialCapsLockState){
+	; initialCapsLockState := GetKeyState("Capslock", "T") ; Getting caps lock state to reset it back. 
 	Sleep, 200 ; Leave some time for the first change.
     sendinput {Ctrl down}{Capslock}{Ctrl up}
 	SetCapsLockState, % initialCapsLockState
@@ -31,14 +32,15 @@ SwapToKana(){
 ; Check if the keyboard is in EN or JP, then forces kana if in JP.
 ; From https://www.autohotkey.com/board/topic/43043-get-current-keyboard-layout/
 SwapToKanaOnNewField(){
-  SetFormat, Integer, H
-  WinGet, WinID,, A
-  ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
-  InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
-  ;MsgBox, %InputLocaleID%
+	initialCapsLockState := GetKeyState("Capslock", "T") ; Getting caps lock state to reset it back. ;Added
+	SetFormat, Integer, H
+	WinGet, WinID,, A
+	ThreadID:=DllCall("GetWindowThreadProcessId", "UInt", WinID, "UInt", 0)
+	InputLocaleID:=DllCall("GetKeyboardLayout", "UInt", ThreadID, "UInt")
+	;MsgBox, %InputLocaleID%
   
-  if InputLocaleID=0x4110411
-	SwapToKana()
+	if InputLocaleID=0x4110411
+		SwapToKana(initialCapsLockState) 
 }
 
 ; IME swapping binds to WIN & Space. Change this next line to rebind. Assumes only 2 keyboards are on your system.
